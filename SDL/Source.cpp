@@ -22,10 +22,12 @@ int main(int argc, char ** argv) {
 	win = SDL_CreateWindow("Minesweeper", 100, 100, sizeX, sizeY, 0);
 	if (win == nullptr) {
 		std::cout << "SDL_CreateWindow error\n";
+		return 1;
 	}
 	renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	if (renderer == nullptr) {
 		std::cout << "SDL_CreateRenderer error\n";
+		return 1;
 	}
 	// Load bitmap
 	SDL_Surface * bitmapSurface = SDL_LoadBMP("img/tiles.bmp");
