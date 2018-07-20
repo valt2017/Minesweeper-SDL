@@ -4,6 +4,7 @@
 #include <map>
 
 // Ported by @valt to SDL from https://www.youtube.com/user/FamTrinli minesweeper tutorial in SFML
+// uncovering multiple fields with no mines at one time not implemented yet
 
 const int FigureSize = 32;
 const int PuzzleSize = 10;
