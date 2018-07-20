@@ -1,7 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <SDL.h>
-#include <vector>
 #include <map>
 
 // Ported by @valt to SDL from https://www.youtube.com/user/FamTrinli minesweeper tutorial in SFML
