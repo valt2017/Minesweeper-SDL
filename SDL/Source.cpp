@@ -2,9 +2,11 @@
 #include <fstream>
 #include <SDL.h>
 #include <map>
+#include <ctime>
 
 // Ported by @valt to SDL from https://www.youtube.com/user/FamTrinli minesweeper tutorial in SFML
-// uncovering multiple fields with no mines at one time not implemented yet
+// uncovering multiple fields with no mines at one time - first attempt recursive
+// todo all mines marked with flags...
 
 const int FigureSize = 32;
 const int PuzzleSize = 10;
@@ -14,18 +16,37 @@ int backGrid[PuzzleSize+2][PuzzleSize+2];
 int showGrid[PuzzleSize+2][PuzzleSize+2];
 const int sizeX = PuzzleSize*FigureSize, sizeY = PuzzleSize*FigureSize;
 
+void uncover(int x, int y){	// 0 - empty field
+//	std::cout << x << " " << y << std::endl;
+	if (backGrid[y - 1][x] < MINE && showGrid[y - 1][x] == COVER){
+		showGrid[y - 1][x] = backGrid[y - 1][x];
+		if(backGrid[y - 1][x] == 0) uncover(x, y - 1);
+	}
+	if (backGrid[y + 1][x] < MINE && showGrid[y + 1][x] == COVER) {
+		showGrid[y + 1][x] = backGrid[y + 1][x];
+		if (backGrid[y + 1][x] == 0) uncover(x, y + 1);
+	}
+	if (backGrid[y][x - 1] < MINE && showGrid[y][x - 1] == COVER) {
+		showGrid[y][x - 1] = backGrid[y][x - 1];
+		if(backGrid[y][x - 1] == 0) uncover(x - 1, y);
+	}
+	if (backGrid[y][x + 1] < MINE && showGrid[y][x + 1] == COVER) {
+		showGrid[y][x + 1] = backGrid[y][x + 1];
+		if (backGrid[y][x + 1] == 0) uncover(x + 1, y);
+	}
+}
+
 int main(int argc, char ** argv) {
-	SDL_Window *win = nullptr;
-	SDL_Renderer *renderer = nullptr;
+	srand(time(0));
 	// Error checks
 	std::cout << "SDL_Init\n";
 	SDL_Init(SDL_INIT_VIDEO);
-	win = SDL_CreateWindow("Minesweeper", 100, 100, sizeX, sizeY, 0);
+	SDL_Window *win = SDL_CreateWindow("Minesweeper", 100, 100, sizeX, sizeY, 0);
 	if (win == nullptr) {
 		std::cout << "SDL_CreateWindow error\n";
 		return 1;
 	}
-	renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
+	SDL_Renderer *renderer = SDL_CreateRenderer(win, -1, SDL_RENDERER_ACCELERATED);
 	if (renderer == nullptr) {
 		std::cout << "SDL_CreateRenderer error\n";
 		return 1;
@@ -41,7 +62,7 @@ int main(int argc, char ** argv) {
 	SDL_FreeSurface(bitmapSurface);
 
 	std::map<int, SDL_Rect> Figures;
-	// Load 12 figures for mines 0..8 numbers, 9 mine, 10 empty, 11 flag
+	// Load 12 figures for mines: 0..8 numbers, 9 mine, 10 empty, 11 flag
 	for (int i = 0; i < 12; i++)
 		Figures[i] = SDL_Rect{ i*FigureSize, 0, FigureSize, FigureSize };
 	// Init show grid & place mines on backgrid
@@ -82,11 +103,17 @@ int main(int argc, char ** argv) {
 				mousePos.y = e.motion.y / FigureSize + 1;
 				std::cout << mousePos.x << "," << mousePos.y << "->" << backGrid[mousePos.y][mousePos.x] << std::endl;
 				if (e.button.button == SDL_BUTTON_LEFT) {
-					if(backGrid[mousePos.y][mousePos.x] != MINE)
+					if (backGrid[mousePos.y][mousePos.x] != MINE) {
 						showGrid[mousePos.y][mousePos.x] = backGrid[mousePos.y][mousePos.x];
+						uncover(mousePos.x ,mousePos.y);
+					}
 					else{
 						SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Game over", "You found a mine.", nullptr);
-						break;
+						// uncover all fields
+						for (int i = 1; i <= PuzzleSize; i++)
+							for (int j = 1; j <= PuzzleSize; j++) 
+								showGrid[j][i] = backGrid[j][i];
+						//break;
 					}
 				}
 				if (e.button.button == SDL_BUTTON_RIGHT) 
