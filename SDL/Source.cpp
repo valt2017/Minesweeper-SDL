@@ -6,7 +6,7 @@
 
 // Ported by @valt to SDL from https://www.youtube.com/user/FamTrinli minesweeper tutorial in SFML
 // uncovering multiple fields with no mines at one time - first attempt recursive
-// todo all mines marked with flags...
+// todo all mines marked with flags...game over
 
 const int FigureSize = 32;
 const int PuzzleSize = 10;
@@ -17,7 +17,6 @@ int showGrid[PuzzleSize+2][PuzzleSize+2];
 const int sizeX = PuzzleSize*FigureSize, sizeY = PuzzleSize*FigureSize;
 
 void uncover(int x, int y){	// 0 - empty field
-//	std::cout << x << " " << y << std::endl;
 	if (backGrid[y - 1][x] < MINE && showGrid[y - 1][x] == COVER){
 		showGrid[y - 1][x] = backGrid[y - 1][x];
 		if(backGrid[y - 1][x] == 0) uncover(x, y - 1);
